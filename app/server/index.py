@@ -3,9 +3,9 @@
 from __future__ import print_function
 import os
 import sys
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer, test as _test
+from http.server import BaseHTTPRequestHandler, HTTPServer, test as _test
 import subprocess
-from SocketServer import ThreadingMixIn
+from socketserver import ThreadingMixIn
 import argparse
 
 
@@ -42,7 +42,10 @@ class MainHandler(BaseHTTPRequestHandler):
             self.send_response(200)
             self.send_header('Content-type', contentType)
             self.end_headers()
-            self.wfile.write(data)
+            if isinstance(data, str):
+                self.wfile.write(data.encode('utf-8'))  # Convert str to bytes
+            else:
+                self.wfile.write(data)  # Directly write bytes
 
         except IOError:
             self.send_error(404, 'File Not Found: %s' % self.path)
